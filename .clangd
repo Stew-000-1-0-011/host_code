@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+    - -g
+    - -std=c++23
+  Compiler: clang++
+# Completion:
+#   - HeaderInsertion: Never
