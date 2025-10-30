@@ -10,6 +10,7 @@
 #include <iostream>
 #include <print>
 #include <stop_token>
+#include <thread>
 
 // #include "cobs_bytestuff/cobs.hpp"
 #include "spawn_coro/spawn_coro.hpp"
@@ -17,6 +18,8 @@
 
 #include "host_code/robot_task.hpp"
 #include "host_code/usb_serial.hpp"
+
+using namespace std::chrono_literals;
 
 using spawn_coro::spawn_coro::SpawnCoro;
 using spawn_coro::spawn_coro::SuspendToSpawn;
@@ -143,6 +146,8 @@ namespace host_code::world_without_ros {
 					const auto e = ret.error();
 					std::println(std::cerr, "at write msg2: {}, errno: {}", e.what(), std::strerror(e.err));
 				}
+
+				std::this_thread::sleep_for(1ms);
 			}
 
 			done_count.fetch_sub(1);
@@ -186,6 +191,8 @@ namespace host_code::world_without_ros {
 					shoot.store(true);
 					break;
 				}
+			
+				std::this_thread::sleep_for(1ms);
 			}
 
 			done_count.fetch_sub(1);
