@@ -23,7 +23,7 @@ ament_target_dependencies(main_node
     geometry_msgs
 )
 target_link_libraries(main_node
-  /home/stew/chibarobo25/host_code/install/lib/host_code/libstatic_lib.a
+  /home/crs/livox_ws/host_codes/host_code/install/lib/host_code/libstatic_lib.a
 )
 target_include_directories(main_node
   PRIVATE
