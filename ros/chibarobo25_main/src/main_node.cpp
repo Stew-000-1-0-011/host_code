@@ -125,7 +125,9 @@ struct Node : rclcpp::Node {
 
 			// 右スティック -> 左右回転
 			this->vth->store(msg->axes[2] * vthmax * 0.8);
-		}		
+		}
+		
+		this->buttons->store(state);
 	}
 };
 
