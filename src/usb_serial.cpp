@@ -37,8 +37,8 @@ namespace host_code::usb_serial::detail {
 		cfmakeraw(&tio);
 
 		// 速度設定 (9600bps)
-		cfsetispeed(&tio, B9600);
-		cfsetospeed(&tio, B9600);
+		cfsetispeed(&tio, B115200);
+		cfsetospeed(&tio, B115200);
 
 		if(parity) tio.c_cflag |= PARENB;
 		else tio.c_cflag &= ~PARENB;
@@ -76,6 +76,7 @@ namespace host_code::usb_serial::detail {
 	}
 
 	auto UsbSerial::write(const std::span<const std::byte>& bytes) const noexcept -> std::expected<usize, UsbError> {
+
 		isize ret = ::write(this->fd, bytes.data(), bytes.size());
 		if(ret == -1) {
 			const auto err = errno;
