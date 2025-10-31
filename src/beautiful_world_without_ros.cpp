@@ -60,16 +60,16 @@ template<usize n1_, usize n2_>
 requires (n1_ < 253 && n2_ >= n1_ + 2)
 auto cobs_encode(const std::span<const std::byte, n1_> from, const std::span<std::byte, n2_> to) -> u32 {
 	u32 last_zero = 0;
-	for(u32 i = 0; i < n1_; ++i) {
-		if(from[i] == std::byte(0)) {
-			to[last_zero] = std::byte(i + 1);
-			last_zero = i + 1;
+	for(u32 i = 1; i <= n1_; ++i) {
+		if(from[i - 1] == std::byte(0)) {
+			to[last_zero] = std::byte(i - last_zero);
+			last_zero = i;
 		}
 		else {
-			to[i + 1] = from[i];
+			to[i] = from[i - 1];
 		}
 	}
-	to[last_zero] = std::byte(n1_ + 1);
+	to[last_zero] = std::byte(n1_ + 1 - last_zero);
 	to[n1_ + 1] = std::byte(0);
 	return n1_ + 2;
 }
@@ -123,12 +123,17 @@ namespace host_code::world_without_ros {
 				const auto vth_ = vth.load();
 				const auto shoot_ = shoot.load();
 
+				const auto vx2 = range_convert(vx_, vxymax);
+				const auto vy2 = range_convert(vy_, vxymax);
+				const auto vth2 = range_convert(vth_, vthmax);
+				// std::println("v is {} {} {}", vx_, vy_, vth_);
 				static_assert(std::endian::native == std::endian::little);
 				u32 msg1{};
 				msg1 |= 0;
-				msg1 |= range_convert(vx_, vxymax) << 8;
-				msg1 |= range_convert(vy_, vxymax) << 16;
-				msg1 |= range_convert(vth_, vthmax) << 24;
+				msg1 |= vx2 << 8;
+				msg1 |= vy2 << 16;
+				msg1 |= vth2 << 24;
+				// std::println("msg1: {:x}", msg1);
 
 				u16 msg2{};
 				msg2 |= 1;
@@ -137,12 +142,20 @@ namespace host_code::world_without_ros {
 				// COBS
 				std::byte buf[6]{};
 				cobs_encode(std::span<const std::byte, 4>{std::bit_cast<std::array<std::byte, 4>>(msg1)}, std::span<std::byte, 6>{buf});
-				if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf}); !ret) {
+				// for(u32 i = 0; i < 6; ++i) {
+				// 	std::print("{} ", int(buf[i]));
+				// }
+				// std::println();
+				if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 6}); !ret) {
 					const auto e = ret.error();
 					std::println(std::cerr, "at write msg1: {}, errno: {}", e.what(), std::strerror(e.err));
 				}
 				cobs_encode(std::span<const std::byte, 2>{std::bit_cast<std::array<std::byte, 2>>(msg2)}, std::span<std::byte, 6>{buf});
-				if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf}); !ret) {
+				// for(u32 i = 0; i < 6; ++i) {
+				// 	std::print("{} ", int(buf[i]));
+				// }
+				// std::println();
+				if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 4}); !ret) {
 					const auto e = ret.error();
 					std::println(std::cerr, "at write msg2: {}, errno: {}", e.what(), std::strerror(e.err));
 				}
@@ -180,10 +193,11 @@ namespace host_code::world_without_ros {
 							const auto vx_ = calc_vel(gx - cx, axymax);
 							const auto vy_ = calc_vel(gy - cy, axymax);
 							const auto vth_ = calc_vel(gth - cth, athmax);
+							// std::println("sender v is {} {} {}.", vx_, vy_, vth_);
 
 							vx.store(vx_);
-							vx.store(vy_);
-							vx.store(vth_);
+							vy.store(vy_);
+							vth.store(vth_);
 						}
 					}
 				}
