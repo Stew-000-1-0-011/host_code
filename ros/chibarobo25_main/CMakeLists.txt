@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_executable(main_node
   src/main_node.cpp
@@ -21,6 +22,7 @@ add_executable(main_node
 ament_target_dependencies(main_node
     rclcpp
     geometry_msgs
+    sensor_msgs
 )
 target_link_libraries(main_node
   ${PROJECT_SOURCE_DIR}/../../install/lib/host_code/libstatic_lib.a
