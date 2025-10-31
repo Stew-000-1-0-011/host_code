@@ -108,14 +108,12 @@ namespace host_code::world_without_ros {
 
 		using std::numbers::pi;
 		std::vector<Task> tasks {
-			Task::moveto(2.10, 1.55, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 2.50, pi / 2, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 2.50, pi, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 3.70, 0., 0.1, std::numbers::pi / 4., 0.)
+			Task::moveto(0.35, 2.50, -pi / 2., 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(2.10, 2.50, 0., 0.1, std::numbers::pi / 4., 0.)
 			, Task::moveto(2.10, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 5.20, pi, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.90, 5.20, -pi / 2, 0.1, std::numbers::pi / 4., 1.)
+			, Task::moveto(0.35, 3.70, pi, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(0.35, 5.20, 0., 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(2.90, 5.20, -pi / 2, 0.1, std::numbers::pi / 36., 1.)
 			, Task::shoot()
 		};
 
@@ -142,6 +140,10 @@ namespace host_code::world_without_ros {
 					vth_ = man_vth->load();
 					shoot_ = buttons_ & 0b0100;
 				}
+
+				vx_ = 10;
+				vy_ = 10;
+				vth_ = 10;
 
 				const auto vx2 = range_convert(vx_, vxymax);
 				const auto vy2 = range_convert(vy_, vxymax);
