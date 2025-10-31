@@ -8,6 +8,7 @@
 #include <bit>
 #include <chrono>
 #include <iostream>
+#include <numbers>
 #include <print>
 #include <stop_token>
 #include <thread>
@@ -101,15 +102,16 @@ namespace host_code::world_without_ros {
 			return;
 		}
 
+		using std::numbers::pi;
 		std::vector<Task> tasks {
 			Task::moveto(2.10, 1.55, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 2.50, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 2.50, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 3.70, 0., 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(2.10, 2.50, pi / 2, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(0.35, 2.50, pi, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(0.35, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
 			, Task::moveto(2.10, 3.70, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 3.70, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 5.20, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.90, 5.20, 0., 0.1, std::numbers::pi / 4., 1.)
+			, Task::moveto(2.10, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(2.10, 5.20, pi, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(2.90, 5.20, -pi / 2, 0.1, std::numbers::pi / 4., 1.)
 			, Task::shoot()
 		};
 
