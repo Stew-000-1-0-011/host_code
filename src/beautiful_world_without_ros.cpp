@@ -150,6 +150,15 @@ namespace host_code::world_without_ros {
 					const auto e = ret.error();
 					std::println(std::cerr, "at write msg1: {}, errno: {}", e.what(), std::strerror(e.err));
 				}
+				// if(const auto ret = usb_serial->read_all(std::span<std::byte>{buf, 6}); !ret) {
+				// 	const auto e = ret.error();
+				// 	std::println(std::cerr, "at read msg1: {}, errno: {}", e.what(), std::strerror(e.err));
+				// }
+				// for(int i = 0; i < 6; ++i) {
+				// 	std::print("{}   ", int(buf[i]));
+				// }
+				// std::println();
+
 				cobs_encode(std::span<const std::byte, 2>{std::bit_cast<std::array<std::byte, 2>>(msg2)}, std::span<std::byte, 6>{buf});
 				// for(u32 i = 0; i < 6; ++i) {
 				// 	std::print("{} ", int(buf[i]));
@@ -159,6 +168,14 @@ namespace host_code::world_without_ros {
 					const auto e = ret.error();
 					std::println(std::cerr, "at write msg2: {}, errno: {}", e.what(), std::strerror(e.err));
 				}
+				// if(const auto ret = usb_serial->read_all(std::span<std::byte>{buf, 4}); !ret) {
+				// 	const auto e = ret.error();
+				// 	std::println(std::cerr, "at read msg2: {}, errno: {}", e.what(), std::strerror(e.err));
+				// }
+				// for(int i = 0; i < 4; ++i) {
+				// 	std::print("{} ", int(buf[i]));
+				// }
+				// std::println();
 
 				std::this_thread::sleep_for(1ms);
 			}
