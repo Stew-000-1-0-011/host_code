@@ -82,6 +82,10 @@ namespace host_code::world_without_ros {
 		, std::atomic<double> *const x
 		, std::atomic<double> *const y
 		, std::atomic<double> *const th
+		, std::atomic<double> *const man_vx
+		, std::atomic<double> *const man_vy
+		, std::atomic<double> *const man_vth
+		, std::atomic<u8> *const buttons
 		, const double vxymax
 		, const double vthmax
 		, const double axymax
@@ -120,10 +124,24 @@ namespace host_code::world_without_ros {
 			co_await Suspend{};
 
 			while(!stok.stop_requested()) {
-				const auto vx_ = vx.load();
-				const auto vy_ = vy.load();
-				const auto vth_ = vth.load();
-				const auto shoot_ = shoot.load();
+				const auto buttons_ = buttons->load();
+				double vx_;
+				double vy_;
+				double vth_;
+				bool shoot_;
+
+				if(buttons_ & 0b1000) {
+					vx_ = vx.load();
+					vy_ = vy.load();
+					vth_ = vth.load();
+					shoot_ = shoot.load();
+				}
+				else {
+					vx_ = man_vx->load();
+					vy_ = man_vy->load();
+					vth_ = man_vth->load();
+					shoot_ = buttons_ & 0b0100;
+				}
 
 				const auto vx2 = range_convert(vx_, vxymax);
 				const auto vy2 = range_convert(vy_, vxymax);
@@ -178,6 +196,22 @@ namespace host_code::world_without_ros {
 				// 	std::print("{} ", int(buf[i]));
 				// }
 				// std::println();
+
+				if(buttons_ & 0b0010) {
+					buf[0] = std::byte(2);
+					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 1}); !ret) {
+						const auto e = ret.error();
+						std::println(std::cerr, "at write msg3: {}, errno: {}", e.what(), std::strerror(e.err));
+					}
+				}
+
+				if(buttons_ & 0b0001) {
+					buf[0] = std::byte(3);
+					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 1}); !ret) {
+						const auto e = ret.error();
+						std::println(std::cerr, "at write msg4: {}, errno: {}", e.what(), std::strerror(e.err));
+					}
+				}
 
 				std::this_thread::sleep_for(1ms);
 			}
