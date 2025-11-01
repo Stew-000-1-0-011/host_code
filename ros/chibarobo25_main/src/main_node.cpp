@@ -91,18 +91,19 @@ struct Node : rclcpp::Node {
 			state |= emergncy_stop;
 		}
 
-		if(this->is_auto) {
-			// B -> 手動モードへ
-			if(msg->buttons[1] == 1) {
-				this->is_auto = false;
-				state &= ~is_auto;
-			}
+		// if(this->is_auto) {
+		// 	// B -> 手動モードへ
+		// 	if(msg->buttons[1] == 1) {
+		// 		this->is_auto = false;
+		// 		state &= ~is_auto;
+		// 	}
 
-			this->vx->store(0.);
-			this->vy->store(0.);
-			this->vth->store(0.);
-		}
-		else {
+		// 	this->vx->store(0.);
+		// 	this->vy->store(0.);
+		// 	this->vth->store(0.);
+		// }
+		// else {
+			std::println("in auto.");
 			// A -> 自動モードへ
 			if(msg->buttons[0] == 1) {
 				this->is_auto = true;
@@ -125,9 +126,10 @@ struct Node : rclcpp::Node {
 
 			// 右スティック -> 左右回転
 			this->vth->store(msg->axes[2] * vthmax * 0.8);
-		}
+		// }
 		
 		this->buttons->store(state);
+		std::println("{}", int(state));
 	}
 };
 
