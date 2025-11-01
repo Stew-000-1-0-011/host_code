@@ -57,6 +57,14 @@ auto calc_vel(const double err, const double amax) -> double {
 	return (std::signbit(err) ? -1. : 1.) * std::sqrt(std::abs(2 * amax * err));
 }
 
+void to_local_velocity(double gvx, double gvy, double gvth, double gth, std::atomic<double> * vx, std::atomic<double> * vy, std::atomic<double> * vth) {
+	const auto lvx = std::cos(-gth) * gvx - std::sin(-gth) * gvy;
+	const auto lvy = std::sin(-gth) * gvx + std::cos(-gth) * gvy;
+	vx->store(lvx);
+	vy->store(lvy);
+	vth->store(gvth);
+}
+
 template<usize n1_, usize n2_>
 requires (n1_ < 253 && n2_ >= n1_ + 2)
 auto cobs_encode(const std::span<const std::byte, n1_> from, const std::span<std::byte, n2_> to) -> u32 {
@@ -107,13 +115,20 @@ namespace host_code::world_without_ros {
 		}
 
 		using std::numbers::pi;
+		// std::vector<Task> tasks {
+		// 	Task::moveto(0.35, 2.50, -pi / 2., 0.1, std::numbers::pi / 4., 0.)
+		// 	, Task::moveto(2.10, 2.50, 0., 0.1, std::numbers::pi / 4., 0.)
+		// 	, Task::moveto(2.10, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
+		// 	, Task::moveto(0.35, 3.70, pi, 0.1, std::numbers::pi / 4., 0.)
+		// 	, Task::moveto(0.35, 5.20, 0., 0.1, std::numbers::pi / 4., 0.)
+		// 	, Task::moveto(2.90, 5.20, -pi / 2, 0.1, std::numbers::pi / 36., 1.)
+		// 	, Task::shoot()
+		// };
+
 		std::vector<Task> tasks {
-			Task::moveto(0.35, 2.50, -pi / 2., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 2.50, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.10, 3.70, pi / 2, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 3.70, pi, 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(0.35, 5.20, 0., 0.1, std::numbers::pi / 4., 0.)
-			, Task::moveto(2.90, 5.20, -pi / 2, 0.1, std::numbers::pi / 36., 1.)
+			Task::moveto(0.40, 0.75, 0., 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(1.20, 0.75, pi / 2, 0.1, std::numbers::pi / 4., 0.)
+			, Task::moveto(1.20, 1.50, 0., 0.1, std::numbers::pi / 36., 0.)
 			, Task::shoot()
 		};
 
@@ -252,14 +267,17 @@ namespace host_code::world_without_ros {
 							const auto vth_ = calc_vel(gth - cth, athmax);
 							// std::println("sender v is {} {} {}.", vx_, vy_, vth_);
 
-							vx.store(vx_);
-							vy.store(vy_);
-							vth.store(vth_);
+							to_local_velocity(vx_, vy_, vth_, cth, &vx, &vy, &vth);
 						}
 					}
 				}
 				else {
 					shoot.store(true);
+					std::this_thread::sleep_for(4s);
+					const auto cth = th->load();
+					to_local_velocity(0., -axymax, 0., cth, &vx, &vy, &vth);
+					std::this_thread::sleep_for(0.2s);
+					to_local_velocity(0., 0., 0., cth, &vx, &vy, &vth);
 					break;
 				}
 			
