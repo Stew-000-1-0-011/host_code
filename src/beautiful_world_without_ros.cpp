@@ -141,10 +141,6 @@ namespace host_code::world_without_ros {
 					shoot_ = buttons_ & 0b0100;
 				}
 
-				vx_ = 10;
-				vy_ = 10;
-				vth_ = 10;
-
 				const auto vx2 = range_convert(vx_, vxymax);
 				const auto vy2 = range_convert(vy_, vxymax);
 				const auto vth2 = range_convert(vth_, vthmax);
