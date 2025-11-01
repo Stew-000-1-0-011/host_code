@@ -87,23 +87,24 @@ struct Node : rclcpp::Node {
 		constexpr u8 is_auto = 0b1000;
 
 		// back -> 非常停止
-		if(msg->buttons[4] == 1) {
+		if(msg->buttons[6] == 1) {
 			state |= emergncy_stop;
 		}
 
-		// if(this->is_auto) {
-		// 	// B -> 手動モードへ
-		// 	if(msg->buttons[1] == 1) {
-		// 		this->is_auto = false;
-		// 		state &= ~is_auto;
-		// 	}
-
-		// 	this->vx->store(0.);
-		// 	this->vy->store(0.);
-		// 	this->vth->store(0.);
-		// }
-		// else {
+		if(this->is_auto) {
 			std::println("in auto.");
+			// B -> 手動モードへ
+			if(msg->buttons[1] == 1) {
+				this->is_auto = false;
+				state &= ~is_auto;
+			}
+
+			this->vx->store(0.);
+			this->vy->store(0.);
+			this->vth->store(0.);
+		}
+		else {
+			std::println("in manual.");
 			// A -> 自動モードへ
 			if(msg->buttons[0] == 1) {
 				this->is_auto = true;
@@ -111,7 +112,7 @@ struct Node : rclcpp::Node {
 			}
 
 			// start -> キャリブレーション
-			if(msg->buttons[6] == 1) {
+			if(msg->buttons[7] == 1) {
 				state |= calibration;
 			}
 
@@ -125,8 +126,8 @@ struct Node : rclcpp::Node {
 			this->vy->store(msg->axes[1] * vxymax * 0.8);
 
 			// 右スティック -> 左右回転
-			this->vth->store(msg->axes[2] * vthmax * 0.8);
-		// }
+			this->vth->store(msg->axes[3] * vthmax * 0.8);
+		}
 		
 		this->buttons->store(state);
 		std::println("{}", int(state));
@@ -135,7 +136,7 @@ struct Node : rclcpp::Node {
 
 int main(int argc, char * argv[]) {
 	double vxymax, vthmax, axymax, athmax, x_init, y_init, th_init;
-	std::cin >> vxymax >> vthmax >> axymax >>athmax;
+	std::cin >> vxymax >> vthmax >> axymax >> athmax >> x_init >> y_init >> th_init;
 
 	std::stop_source ssrc{};
 	
