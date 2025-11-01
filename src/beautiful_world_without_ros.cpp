@@ -197,15 +197,20 @@ namespace host_code::world_without_ros {
 
 				if(buttons_ & 0b0010) {
 					buf[0] = std::byte(2);
-					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 1}); !ret) {
+					buf[1] = std::byte(2);
+					buf[2] = std::byte(0);
+					std::println("calli.");
+					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 3}); !ret) {
 						const auto e = ret.error();
 						std::println(std::cerr, "at write msg3: {}, errno: {}", e.what(), std::strerror(e.err));
 					}
 				}
 
 				if(buttons_ & 0b0001) {
-					buf[0] = std::byte(3);
-					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 1}); !ret) {
+					buf[0] = std::byte(2);
+					buf[1] = std::byte(3);
+					buf[2] = std::byte(0);
+					if(const auto ret = usb_serial->write_all(std::span<std::byte>{buf, 3}); !ret) {
 						const auto e = ret.error();
 						std::println(std::cerr, "at write msg4: {}, errno: {}", e.what(), std::strerror(e.err));
 					}
@@ -232,6 +237,7 @@ namespace host_code::world_without_ros {
 
 
 					while(!stok.stop_requested()) {
+						// std::println("current pos {} {} {}", cx, cy, cth);
 						const auto now = Clock::now();
 						if(norm2(cx - gx, cy - gy) > xy_thr * xy_thr || norm2(cth - gth, 0.) > th_thr * th_thr) {
 							last_far_time = now;
